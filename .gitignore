@@ -1,0 +1,5 @@
+# .envファイルとディレクトリ
+.env
+
+# Pythonバイトコード
+__pycache__/
