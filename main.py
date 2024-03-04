@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Header, BackgroundTasks
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage
+from linebot.models import TextSendMessage, ImageMessage, VideoMessage, AudioMessage, LocationMessage, StickerMessage
 from starlette.exceptions import HTTPException
 
 from dotenv import load_dotenv
@@ -13,11 +14,7 @@ line_bot_api = LineBotApi(os.environ["LINE_CHANNEL_ACCESS_TOKEN"])
 handler = WebhookHandler(os.environ["LINE_CHANNEL_SECRET"])
 
 app = FastAPI()
-
-@app.get("/")
-def root():
-    return {"title": "Echo Bot"}
-    
+  
 @app.post("/callback")
 async def callback(
     request: Request,
@@ -35,9 +32,24 @@ async def callback(
 
     return "ok"
 
+# LINEからのメッセージを受け取る関数
 @handler.add(MessageEvent)
 def handle_message(event):
-    if event.type != "message" or event.message.type != "text":
-        return
+    
+    # テキストメッセージの場合、特定の処理を行う
+    if isinstance(event.message, TextMessage):
+        handle_text_message(event)
+
+    # テキストメッセージ以外の場合、再入力を促す
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="申し訳ありませんが、テキストのメッセージのみ対応しています。もう一度入力してください。")
+        )
+
+# テキストメッセージに対する処理を実装
+def handle_text_message(event):
+    print(event.message.text)
     message = TextMessage(text=event.message.text)
     line_bot_api.reply_message(event.reply_token, message)
+
