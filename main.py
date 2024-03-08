@@ -186,7 +186,7 @@ def handle_text_message(event):
             gpt_message, image_message, button_message = game(user_id=user_id,
                                                   scene=user_data[user_id]["scene"], 
                                                   step=user_data[user_id]["step"], 
-                                                  user_text=None)
+                                                  user_text=user_text)
             if image_message and button_message:
                 line_bot_api.reply_message(event.reply_token, [gpt_message, image_message, button_message])
             elif image_message and (not button_message):
