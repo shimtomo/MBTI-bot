@@ -135,17 +135,19 @@ def handle_postback(event):
         data = event.postback.data
         user_text = data.split('=')[1] if '=' in data else None
 
-        gpt_message, image_message, button_message = game(user_id=user_id,
-                                                          scene=user_data[user_id]["scene"], 
-                                                          step=user_data[user_id]["step"], 
-                                                          user_text=user_text)
         # "end"の場合
         if user_data[user_id]["step"] == "END":
+            mbti_message = MBTI(user_id)
             end_button = game_end_button()
-            line_bot_api.reply_message(event.reply_token, [gpt_message, end_button])
+            line_bot_api.reply_message(event.reply_token, [mbti_message, end_button])
 
         # "end"以外の場合
         elif user_data[user_id]["step"] != "END":
+            gpt_message, image_message, button_message = game(user_id=user_id,
+                                                          scene=user_data[user_id]["scene"],
+                                                          step=user_data[user_id]["step"],
+                                                          user_text=user_text)
+
             if image_message and button_message:
                 line_bot_api.reply_message(event.reply_token, [gpt_message, image_message, button_message])
             elif image_message and (not button_message):
@@ -154,7 +156,7 @@ def handle_postback(event):
                 line_bot_api.reply_message(event.reply_token, [gpt_message, button_message])
             elif (not image_message) and (not button_message):
                 line_bot_api.reply_message(event.reply_token, [gpt_message])
-    
+
     # ゲームを始めていないかつ、ボタンが押された場合
     elif user_states.get(user_id) == 'not_started':
         pass
@@ -172,17 +174,19 @@ def handle_text_message(event):
 
     # ゲーム中の場合
     if user_states.get(user_id) == 'started':
-        gpt_message, image_message, button_message = game(user_id=user_id,
-                                                          scene=user_data[user_id]["scene"], 
-                                                          step=user_data[user_id]["step"], 
-                                                          user_text=None)
+
         # "end"の場合
         if user_data[user_id]["step"] == "END":
+            mbti_message = MBTI(user_id)
             end_button = game_end_button()
-            line_bot_api.reply_message(event.reply_token, [gpt_message, end_button])
+            line_bot_api.reply_message(event.reply_token, [mbti_message, end_button])
 
         # "end"以外の場合
         elif user_data[user_id]["step"] != "END":
+            gpt_message, image_message, button_message = game(user_id=user_id,
+                                                  scene=user_data[user_id]["scene"], 
+                                                  step=user_data[user_id]["step"], 
+                                                  user_text=None)
             if image_message and button_message:
                 line_bot_api.reply_message(event.reply_token, [gpt_message, image_message, button_message])
             elif image_message and (not button_message):
@@ -241,7 +245,10 @@ def game(user_id, scene, step, user_text):
 
     # 画像がある場合、画像オブジェクトを取得
     if image_class:
-        image_message = get_image(image_class)
+        try:
+            image_message = get_image(image_class)
+        except:
+            pass
     
     # ボタンがある場合、ボタンオブジェクトを取得
     if button:
@@ -298,7 +305,61 @@ def GPT(user_id, scene, step, user_text, history):
     image_class = generated_message.get("image_class") 
     button = generated_message.get("button") 
     options = generated_message.get("options")  
-    timecount = generated_message.get("timecount")  
+    timecount = generated_message.get("timecount")
+    print("gpt_text_type: ", type(gpt_text))
+    print("next_scene_type: ", type(next_scene))
+    print("next_step_type: ", type(next_step))
+    print("image_class_type: ", type(image_class))
+    print("button_type: ", type(button))
+    print("options_type: ", type(options))
+    print("timecount_type: ", type(timecount))
+    print("history:", history)
+
 
     # 応答情報を返す
     return gpt_text, next_scene, next_step, image_class, button, options, timecount
+
+def MBTI(user_id):
+    global user_states
+    global user_data
+    global user_time
+
+    # ユーザの会話履歴のリストを取得
+    history = user_data[user_id]["history"]
+
+    # MBTIの結果を取得
+    mbti_text = mbti_gpt(history)
+
+    # MBTIの結果に基づいてメッセージを作成
+    mbti_message = TextSendMessage(text=mbti_text)
+
+    return mbti_message
+
+
+def mbti_gpt(history):
+    global user_states
+    global user_data
+    global user_time
+    
+    #プロンプト
+    messages = [
+	    {
+	      "role": "user",
+	      "content": "あなたは、会話履歴を基に、ユーザーのMBTIを診断するシステムです。\n\n会話履歴\nhistory:[{\"gpt\":gpt_text1, \"user\":user_text1}, {\"gpt\":gpt_text2, \"user\":user_text2}]\n\"gpt\"はgptが出力するテキストで、ユーザーへの質問\n\"user\"はgptの質問に対するユーザーの選択または回答"
+	    },
+	    {
+	      "role": "user",
+	      "content": f"会話履歴\nhistory:{history}\n\nこの会話履歴を基に、ユーザーの性格を判断し、なぜそのような診断結果になったのか、この性格タイプにはどのような特徴があるのかを説明してください。"
+	    }
+	  ]
+        
+	  # GPT-4に対話履歴messagesを入力し、応答を取得
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model = "gpt-4-turbo-preview",
+        messages = messages
+    )
+    
+    mbti_text = response.choices[0].message.content
+    
+    return mbti_text
