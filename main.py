@@ -234,11 +234,19 @@ def game(user_id, scene, step, user_text):
     # user_dataを更新
     user_data[user_id]["scene"] = next_scene
     user_data[user_id]["step"] = next_step
-    if not (scene == "scene1" and step == "step1"): 
-      if elapsed_time is not None:
-        user_text = f"{user_text} (回答時間: {elapsed_time}秒)"
-      tmp_history = {"gpt": gpt_text, "user": user_text}
-      user_data[user_id]["history"].append(tmp_history)
+    # 保存を希望するシーンとステップの組み合わせを定義
+    allowed_combinations = {
+        "scene1": ["step3", "step5"],
+        "scene2": ["step1", "step2", "step3", "step5", "step6", "step7", "step8", "step9"],
+        "scene3": ["step1", "step2"],
+        "scene4": ["step5"]
+    }
+    if scene in allowed_combinations and step in allowed_combinations[scene]:	
+        if not (scene == "scene1" and step == "step1"): 
+            if elapsed_time is not None:
+                user_text = f"{user_text} (回答時間: {elapsed_time}秒)"
+            tmp_history = {"gpt": gpt_text, "user": user_text}
+            user_data[user_id]["history"].append(tmp_history)
     
     # gpt_textを変換
     gpt_message = TextSendMessage(text=gpt_text)
