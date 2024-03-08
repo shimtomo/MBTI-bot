@@ -12,9 +12,9 @@ import random
 import os
 import time
 from game_config import profile_suzuki, profile_sasaki, prompt, storyline
-from utils import game_start_button, game_end_button, get_button, get_image, get_next_button
-
-# import openai
+from utils import game_start_button, game_end_button, get_button, get_image
+from openai import OpenAI
+import json
 
 # .envファイルから環境変数を読み込む
 load_dotenv()
@@ -159,6 +159,7 @@ def handle_postback(event):
     elif user_states.get(user_id) == 'not_started':
         pass
 
+
 # テキストメッセージに対する処理
 def handle_text_message(event):
     global user_states
@@ -257,54 +258,47 @@ def GPT(user_id, scene, step, user_text, history):
     global user_data
     global user_time
 
-    # # system_promptが既に関連情報を含んだ辞書であると仮定
-    # system_prompt = {
-    #     "prompt": prompt,
-    #     "storyline": storyline,
-    #     "profile_鈴木あい": profile_suzuki,
-    #     "profile_佐々木美咲": profile_sasagi,
-    # }
-    # messages = [
-    # {"role": "system", "content": system_prompt}
-    # ]
+    # system_promptが既に関連情報を含んだ辞書であると仮定
+    system_prompt = {
+        "prompt": prompt,
+        "storyline": storyline,
+        "profile_鈴木あい": profile_suzuki,
+        "profile_佐々木美咲": profile_sasaki,
+    }
+    messages = [
+    {"role": "system", "content": f"{system_prompt}"}
+    ]
 
-    # # user_message, scene, および stepを辞書に組織し、ユーザーメッセージとして追加
-    # user_dict = {
-    #     "user_id": user_id,
-    #     "user_message": user_message,
-    #     "scene": scene,
-    #     "step": step,
-    #     "history":history,
-    # }
-    # messages.append({"role": "user", "content": user_dict})
+    # user_message, scene, および stepを辞書に組織し、ユーザーメッセージとして追加
+    user_dict = {
+        "user_id": user_id,
+        "user_message": user_text,
+        "scene": scene,
+        "step": step,
+        "history":history,
+    }
+    messages.append({"role": "user", "content": f"{user_dict}"})
 
-    # # GPT-4に対話履歴messagesを入力し、応答を取得
-    # response = openai.ChatCompletion.create(
-    #     model="gpt-4",
-    #     response_format={"type": "json_object"},
-    #     messages=messages
-    # )
+    # GPT-4に対話履歴messagesを入力し、応答を取得
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-4-turbo-preview",
+        response_format={"type": "json_object"},
+        messages=messages
+    )
 
-    # # JSON形式で返される応答から情報を抽出
-    # generated_message = response["choices"][0]["message"]["content"]
-
-    # # 応答から必要な情報を取り出す
-    # gpt_text = generated_message["text"]
-    # next_scene = generated_message["next_scene"]
-    # next_step = generated_message["next_step"]
-    # image_class = generated_message["image_class"]
-    # button = generated_message["button"]
-    # options = generated_message["options"]
-    # timecount = generated_message["timecount"]
-
-
-    gpt_text = "gpt_text"
-    next_scene = "scene1"
-    next_step = "END"
-    image_class = None
-    button = True
-    options = ["左の子", "右の子"]
-    timecount = True
+    # JSON形式で返される応答から情報を抽出
+    generated_message_str= response.choices[0].message.content
+    generated_message = json.loads(generated_message_str)
+    print(generated_message_str)
+    # 応答から必要な情報を取り出す
+    gpt_text = generated_message.get("text")  
+    next_scene = generated_message.get("next_scene") 
+    next_step = generated_message.get("next_step")  
+    image_class = generated_message.get("image_class") 
+    button = generated_message.get("button") 
+    options = generated_message.get("options")  
+    timecount = generated_message.get("timecount")  
 
     # 応答情報を返す
     return gpt_text, next_scene, next_step, image_class, button, options, timecount

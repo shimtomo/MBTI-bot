@@ -122,31 +122,31 @@ def get_image(imageclass):
 
 
 
-def get_next_button():
-    # Flex Messageのボディ部分を作成
-    contents = {
-        "type": "bubble",
-        "body": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "button",
-                    "style": "primary",
-                    "action": {
-                        "type": "postback",
-                        "label": "次へ",
-                        "data": "action=next"
-                    }
-                }
-            ]
-        }
-    }
+# def get_next_button():
+#     # Flex Messageのボディ部分を作成
+#     contents = {
+#         "type": "bubble",
+#         "body": {
+#             "type": "box",
+#             "layout": "vertical",
+#             "contents": [
+#                 {
+#                     "type": "button",
+#                     "style": "primary",
+#                     "action": {
+#                         "type": "postback",
+#                         "label": "次へ",
+#                         "data": "action=next"
+#                     }
+#                 }
+#             ]
+#         }
+#     }
 
-    # Flex Messageを作成
-    flex_message = FlexSendMessage(
-        alt_text="次のステップに進む",
-        contents=contents
-    )
+#     # Flex Messageを作成
+#     flex_message = FlexSendMessage(
+#         alt_text="次のステップに進む",
+#         contents=contents
+#     )
 
-    return flex_message
+#     return flex_message

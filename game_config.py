@@ -37,14 +37,21 @@ storyline = {
     "scene1": {
         "step1": {
             "description": "新しい学校の初日、私は緊張で胸がいっぱいだった。教室の扉を開けると、すでに授業が始まる準備が整っている。",
-            "button": True
+            "button": True,
+            "options": ["次へ"],
+            "next": "step2"
         },
         "step2": {
             "description": "私は担任の先生に連れられて、前へと進んだ。先生が私をクラスメイトに紹介し始めた時、教室は静かになり、すべての目が私に注がれた。",
-            "button": True
+            "button": True,
+            "options": ["次へ"],
+            "next": "step3"
         },
         "step3": {
-            "description": "先生：「みなさん、今日は新しい転校生が来ました。彼が自己紹介をするので、よく聞いてあげてください。」"
+            "description": "先生：「みなさん、今日は新しい転校生が来ました。彼が自己紹介をするので、よく聞いてあげてください。」",
+            "button": True,
+            "options": ["次へ"],
+            "next": "step4"
         },
         "step4": {
             "description": "先生：「どうぞ」",
@@ -54,6 +61,7 @@ storyline = {
         "step5": {
             "description": "自己紹介が終わると、クラスメイトから温かい拍手が送られた。その瞬間、私の緊張は少し解け、心が温かくなった。",
             "button": True,
+            "options": ["次へ"],
             "next": "step6"
         },
         "step6": {
@@ -98,6 +106,7 @@ storyline = {
         "step4": {
             "description": "明日まで出す課題が出され、下校のベルが鳴った。美咲が私に向かって、ニコニコしながら提案してきた。美咲：「ねえ、{user}さん、一緒に帰らない？」",
             "button": True,
+            "options": ["次へ"],
             "next": "step5"
         },
         "step5": {
@@ -134,7 +143,7 @@ storyline = {
             "next": "scene3,step3"
         }
     },
-    # 继续之前的storyline字典
+
     "scene3": {
         "step1": {
             "description": "美咲と一緒に帰る途中で、町中にあるおいしそうなレストランを見つけました。店の前を通ると、美味しそうな匂いが漂ってきて、私たちの足を自然と止めさせました。美咲が私に向かって質問してきました。「うわー、おしゃれなレストラン！入ってみない？課題があるから時間が遅くなっちゃうけど、大丈夫かな？」",
@@ -163,6 +172,7 @@ storyline = {
             "image": True,
             "image_class": "restaurant",
             "button": True,
+            "options": ["次へ"],
             "next": "scene4,step3"
         }
     },
@@ -170,6 +180,7 @@ storyline = {
         "step1": {
             "description": "美咲と一緒にレストランに入ると、私たちは温かく迎え入れられ、席に案内されました。テーブルに着くと、ウェイターがメニューを持ってきてくれました。メニューを開いてみると、さまざまな美味しそうな料理が並んでいて、選ぶのが難しいほどでした。",
             "button": True,
+            "options": ["次へ"],
             "next": "step2"
         },
         "step2": {
